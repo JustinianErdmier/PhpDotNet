@@ -1,0 +1,27 @@
+{
+  "name":              "phpdotnet/phpdotnet",
+  "description":       "A PHP micro-framework inspired by Microsoft's ASP.NET Core framework.",
+  "keywords":          ["framework", "micro-framework"],
+  "homepage":          "https://github.com/JustinErdmier/PhpDotNet",
+  "type":              "library",
+  "license":           "MIT",
+  "authors":           [
+    {
+      "name":     "Justin Erdmier",
+      "email":    "justin.erdmier@outlook.com",
+      "homepage": "https://justiniancodes.net"
+    }
+  ],
+  "require":           {
+    "php":              ">=8.1",
+    "vlucas/phpdotenv": "^5.4",
+    "php-di/php-di":    "^6.3",
+    "ext-pdo":          "*",
+    "monolog/monolog":  "^2.3"
+  },
+  "require-dev":       {
+    "roave/security-advisories": "dev-latest",
+    "phpunit/phpunit":           "^9.5"
+  },
+  "minimum-stability": "stable"
+}
