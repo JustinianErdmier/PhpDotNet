@@ -23,5 +23,15 @@
     "roave/security-advisories": "dev-latest",
     "phpunit/phpunit":           "^9.5"
   },
-  "minimum-stability": "stable"
+  "minimum-stability": "stable",
+  "autoload":          {
+    "psr-4": {
+      "PhpDotNet\\": "src/PhpDotNet"
+    }
+  },
+  "autoload-dev":      {
+    "psr-4": {
+      "PhpDotNet\\": "tests/PhpDotNet"
+    }
+  }
 }
