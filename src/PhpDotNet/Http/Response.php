@@ -22,7 +22,7 @@ final class Response {
      *
      * @return void
      */
-    public function setStatusCode(int $code): void {
+    public static function setStatusCode(int $code): void {
         http_response_code($code);
     }
 
@@ -33,7 +33,7 @@ final class Response {
      *
      * @return void
      */
-    public function redirect(string $path): void {
+    public static function redirect(string $path): void {
         header("Location: $path");
     }
 
@@ -45,7 +45,7 @@ final class Response {
      *
      * @return void
      */
-    public function setPostData(string $key, string $value): void {
+    public static function setPostData(string $key, string $value): void {
         $_POST[$key] = $value;
     }
 }

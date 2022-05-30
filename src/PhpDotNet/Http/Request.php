@@ -19,7 +19,7 @@ final class Request {
      *
      * @return string
      */
-    public function getPath(): string {
+    public static function getPath(): string {
         $path     = $_SERVER['REQUEST_URI'] ?? '/';
         $position = strpos($path, '?');
         if ($position === false) {
@@ -33,16 +33,16 @@ final class Request {
      *
      * @return array
      */
-    public function getBody(): array {
+    public static function getBody(): array {
         $body = [];
 
-        if ($this->getMethod() === 'get') {
+        if (self::getMethod() === 'get') {
             foreach ($_GET as $key => $value) {
                 $body[$key] = filter_input(INPUT_GET, $key, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
             }
         }
 
-        if ($this->getMethod() === 'post') {
+        if (self::getMethod() === 'post') {
             foreach ($_POST as $key => $value) {
                 $body[$key] = filter_input(INPUT_POST, $key, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
             }
@@ -56,7 +56,7 @@ final class Request {
      *
      * @return string
      */
-    public function getMethod(): string {
+    public static function getMethod(): string {
         return strtolower($_SERVER['REQUEST_METHOD']);
     }
 }

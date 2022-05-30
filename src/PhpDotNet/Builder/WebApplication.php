@@ -9,6 +9,7 @@ declare(strict_types = 1);
 
 namespace PhpDotNet\Builder;
 
+use PhpDotNet\Exceptions\Http\RoutesNotConfigured;
 use PhpDotNet\HTTP\Router;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -20,28 +21,13 @@ final class WebApplication {
     public static WebApplication $app;
 
     /**
-     * The list of URLs to which the HTTP server is bound.
-     *
-     * @var array $routes
-     */
-    private array $routes = [];
-
-    /**
-     * Object responsible for resolving HTTP requests.
-     *
-     * @var Router $router
-     */
-    private Router $router;
-
-    /**
      * Instantiates a new {@see WebApplication} object.
      *
      * @param LoggerInterface    $logger
      * @param ContainerInterface $container
      */
     public function __construct(public LoggerInterface $logger, public ContainerInterface $container) {
-        self::$app    = $this;
-        $this->router = new Router($this->container);
+        self::$app = $this;
     }
 
     /**
@@ -63,42 +49,15 @@ final class WebApplication {
     }
 
     /**
-     * Sets the expected GET request URI for the desired controller and action method.
-     *
-     * @param string $path      Expected request URI (e.g., ~/HelloWorld).
-     * @param array  $callback  An array expecting two values: 0th index => The class reference of the desired controller, and 1st index => A string representing the desired action
-     *                          method.
-     *
-     * @return void
-     */
-    public function addGetRoute(string $path, array $callback): void {
-        $this->routes['get'][$path] = $callback;
-    }
-
-    /**
-     * Sets the expected POST request URI for the desired controller and action method.
-     *
-     * @param string $path      Expected request URI (e.g., ~/HelloWorld).
-     * @param array  $callback  An array expecting two values: 0 index => The class reference of the desired controller, and 1 index => A string representing the desired action
-     *                          method.
-     *
-     * @return void
-     */
-    public function addPostRoute(string $path, array $callback): void {
-        $this->routes['post'][$path] = $callback;
-    }
-
-    public function useAttributeRouting(): void {
-        $this->router->useAttributes = true;
-    }
-
-    /**
      * Runs the configured application.
      *
      * @return void
      */
     public function run(): void {
-        $this->router->registerRoutes($this->routes);
-        echo $this->router->resolve();
+        try {
+            echo Router::resolve();
+        } catch (RoutesNotConfigured $exception) {
+            self::$app->logger->error('Error resolving route.\n {message}', ['message' => $exception->getMessage()]);
+        }
     }
 }

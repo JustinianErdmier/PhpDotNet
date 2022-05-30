@@ -15,6 +15,7 @@ use Exception;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use Monolog\Processor\PsrLogMessageProcessor;
+use PhpDotNet\Http\Router;
 use Psr\Log\LoggerInterface;
 use function DI\autowire;
 
@@ -42,6 +43,20 @@ final class WebApplicationBuilder {
      * @var LoggerInterface $logger
      */
     private LoggerInterface $logger;
+
+    /**
+     * The list of URLs to which the HTTP server is bound.
+     *
+     * @var array $routes
+     */
+    private array $routes = [];
+
+    /**
+     * The list of controllers used to implement an MVC pattern.
+     *
+     * @var array $controllers
+     */
+    private array $controllers = [];
 
     /**
      * Instantiates a new {@see WebApplicationBuilder} object.
@@ -113,18 +128,79 @@ final class WebApplicationBuilder {
     }
 
     /**
+     * Adds a single controller to the array of controllers to be used when configuring routes.
+     *
+     * @param string $controllerFQN
+     *
+     * @return void
+     */
+    public function addController(string $controllerFQN): void {
+        $this->controllers[] = $controllerFQN;
+    }
+
+    /**
+     * Adds a batch of controllers to the array of controllers to be used when configuring routes.
+     *
+     * @param array $controllerFQNs
+     *
+     * @return void
+     */
+    public function addControllers(array $controllerFQNs): void {
+        foreach ($controllerFQNs as $controllerFQN) {
+            $this->controllers[] = $controllerFQN;
+        }
+    }
+
+    /**
+     * Sets the expected GET request URI for the desired controller and action method.
+     *
+     * @param string $path      Expected request URI (e.g., ~/HelloWorld).
+     * @param array  $callback  An array expecting two values: 0th index => The class reference of the desired controller, and 1st index => A string representing the desired action
+     *                          method.
+     *
+     * @return void
+     */
+    public function addGetRoute(string $path, array $callback): void {
+        $this->routes['get'][$path] = $callback;
+    }
+
+    /**
+     * Sets the expected POST request URI for the desired controller and action method.
+     *
+     * @param string $path      Expected request URI (e.g., ~/HelloWorld).
+     * @param array  $callback  An array expecting two values: 0 index => The class reference of the desired controller, and 1 index => A string representing the desired action
+     *                          method.
+     *
+     * @return void
+     */
+    public function addPostRoute(string $path, array $callback): void {
+        $this->routes['post'][$path] = $callback;
+    }
+
+    /**
      * Builds the {@see WebApplication}.
      *
      * @return WebApplication
      */
     public function build(): WebApplication {
         $this->servicesBuilder->addDefinitions($this->services);
+
         try {
             $container = $this->servicesBuilder->build();
         } catch (Exception $exception) {
             $this->logger->error('WebApplicationBuilder cannot build dependency injection container: {exception}', ['exception' => $exception->getMessage()]);
             exit;
         }
+
+        if (!empty($this->routes)) {
+            Router::registerRoutes($this->routes);
+        }
+
+        if (!empty($this->controllers)) {
+            Router::registerControllers($this->controllers);
+        }
+
+        Router::registerContainer($container);
 
         return new WebApplication($this->logger, $container);
     }

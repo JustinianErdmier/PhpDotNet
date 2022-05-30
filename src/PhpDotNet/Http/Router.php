@@ -5,103 +5,115 @@
  * Licensed under the MIT License - See LICENSE in repository root.           *
  ******************************************************************************/
 
-declare(strict_types = 1);
-
 namespace PhpDotNet\Http;
 
+use PhpDotNet\Builder\WebApplication;
+use PhpDotNet\Exceptions\Http\ControllerMapNotFound;
+use PhpDotNet\Exceptions\Http\RoutesNotConfigured;
 use PhpDotNet\Http\Attributes\HttpRoute;
 use Psr\Container\ContainerInterface;
+use ReflectionAttribute;
 use ReflectionClass;
+use ReflectionException;
 
-/**
- * Core class responsible for handling URL requests and passing the control to the appropriate part of the application.
- */
 final class Router {
     /**
-     * The list of URLs to which the HTTP server is bound.
-     *
-     * @var array $routeMap
+     * @var array $routeMap A shared array of registered URLs to which the HTTP server is bound. The array schema expected is as follows:
+     *                      [
+     *                          ['HttpMethod'] => [
+     *                                              'route' => ['controller', 'method']
+     *                                            ],
+     *                          ['get'] => [
+     *                                      '/home' => ['HomeController::class', 'index'],
+     *                                      '/about' => ['HomeController::class', 'about']
+     *                                     ]
+     *                      ]
      */
-    private array $routeMap;
+    private static array $routeMap;
 
     /**
-     * The utility object for retrieving data from the super global $_SERVER, $_GET, and $_POST arrays.
-     *
-     * @var Request $request
+     * @var array A shared array of registered controllers used to map routes in an MVC pattern.
      */
-    private Request $request;
+    private static array $controllerMap;
 
     /**
-     * The utility object for setting data in the super global $_SERVER array.
-     *
-     * @var Response $response
+     * @var ContainerInterface $container The {@see WebApplication}'s configured services.
      */
-    private Response $response;
+    private static ContainerInterface $container;
 
     /**
-     * The application's configured services.
+     * Manually sets {@see Router::$routeMap}.
      *
-     * @var ContainerInterface $container
-     */
-    private ContainerInterface $container;
-
-    /**
-     * @var bool $useAttributes Flag determining whether the application's routing should be configured with attributes on the controller actions or
-     *                          manually in the app's entry script.
-     */
-    public bool $useAttributes = false;
-
-    /**
-     * Instantiates a new {@see Router}.
-     *
-     */
-    public function __construct(ContainerInterface $container) {
-        $this->container = $container;
-        $this->request   = new Request();
-        $this->response  = new Response();
-    }
-
-    /**
-     * Registers the routes to be resolved by the {@see Router}.
-     *
-     * @param array $routes  {@see Router::$routeMap}.
+     * @param array $routes  Routes should be configured as [['HttpMethod'] => ['route' => ['controller', 'method']]]. Please see the documentation for {@see Router::$routeMap}
+     *                       for more information.
      *
      * @return void
      */
-    public function registerRoutes(array $routes): void {
-        $this->routeMap = $routes;
+    public static function registerRoutes(array $routes): void {
+        self::$routeMap = $routes;
     }
 
-    public function registerAttributeRoutes(array $controllers): void {
-        foreach ($controllers as $controller) {
+    /**
+     * Manually sets {@see Router::$controllerMap}.
+     *
+     * @param array $controllers  Controllers should be configured as a single-dimensional array where the values are the controller's FQN name.
+     *
+     * @return void
+     */
+    public static function registerControllers(array $controllers): void {
+        self::$controllerMap = $controllers;
+    }
+
+    /**
+     * Attempts to build the {@see Router::$routeMap} from attributes used on a controller's action method.
+     *
+     * @return void
+     * @throws ControllerMapNotFound If the {@see Router::$controllerMap} is not set prior to calling this function.
+     * @throws ReflectionException If there is an error with {@see ReflectionClass} or any of its methods used in this function's execution.
+     */
+    public static function registerAttributeRoutes(): void {
+        if (empty(self::$controllerMap)) {
+            throw new ControllerMapNotFound();
+        }
+
+        foreach (self::$controllerMap as $controller) {
             $reflectionController = new ReflectionClass($controller);
 
             foreach ($reflectionController->getMethods() as $method) {
-                $attributes = $method->getAttributes(HttpRoute::class, \ReflectionAttribute::IS_INSTANCEOF);
+                $attributes = $method->getAttributes(HttpRoute::class, ReflectionAttribute::IS_INSTANCEOF);
 
                 foreach ($attributes as $attribute) {
                     $route = $attribute->newInstance();
 
-                    $this->routeMap[$route->method->value][$route->route] = [$controller, $method->getName()];
+                    self::$routeMap[$route->method->value][$route->route] = [$controller, $method->getName()];
                 }
             }
         }
     }
 
+    public static function registerContainer(ContainerInterface $container): void {
+        self::$container = $container;
+    }
+
     /**
-     * Resolves requests by confirming that the request is a configured route. If the request is not configured, then the notFound action method from the SiteController is called.
+     * Attempts to resolve the request and return its contents.
      *
      * @return mixed
+     * @throws RoutesNotConfigured
      */
-    public function resolve(): mixed {
-        $method   = $this->request->getMethod();
-        $path     = $this->request->getPath();
-        $callback = $this->routeMap[$method][$path] ?? $this->routeMap['get']['/not-found'];
-
-        if ($callback === $this->routeMap['get']['/not-found']) {
-            $this->response->setStatusCode(404);
+    public static function resolve(): mixed {
+        if (empty(self::$routeMap)) {
+            throw new RoutesNotConfigured();
         }
 
-        return $this->container->call($callback);
+        $method   = Request::getMethod();
+        $path     = Request::getPath();
+        $callback = self::$routeMap[$method][$path] ?? self::$routeMap['get']['/NotFound'];
+
+        if ($callback === self::$routeMap['get']['/NotFound']) {
+            Response::setStatusCode(404);
+        }
+
+        return self::$container->call($callback);
     }
 }

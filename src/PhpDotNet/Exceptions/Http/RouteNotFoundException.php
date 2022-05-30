@@ -7,7 +7,7 @@
 
 declare(strict_types = 1);
 
-namespace PhpDotNet\Exceptions;
+namespace PhpDotNet\Exceptions\Http;
 
 use Exception;
 
