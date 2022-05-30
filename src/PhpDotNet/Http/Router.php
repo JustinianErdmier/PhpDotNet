@@ -9,7 +9,9 @@ declare(strict_types = 1);
 
 namespace PhpDotNet\Http;
 
+use PhpDotNet\Http\Attributes\HttpRoute;
 use Psr\Container\ContainerInterface;
+use ReflectionClass;
 
 /**
  * Core class responsible for handling URL requests and passing the control to the appropriate part of the application.
@@ -44,6 +46,12 @@ final class Router {
     private ContainerInterface $container;
 
     /**
+     * @var bool $useAttributes Flag determining whether the application's routing should be configured with attributes on the controller actions or
+     *                          manually in the app's entry script.
+     */
+    public bool $useAttributes = false;
+
+    /**
      * Instantiates a new {@see Router}.
      *
      */
@@ -62,6 +70,22 @@ final class Router {
      */
     public function registerRoutes(array $routes): void {
         $this->routeMap = $routes;
+    }
+
+    public function registerAttributeRoutes(array $controllers): void {
+        foreach ($controllers as $controller) {
+            $reflectionController = new ReflectionClass($controller);
+
+            foreach ($reflectionController->getMethods() as $method) {
+                $attributes = $method->getAttributes(HttpRoute::class, \ReflectionAttribute::IS_INSTANCEOF);
+
+                foreach ($attributes as $attribute) {
+                    $route = $attribute->newInstance();
+
+                    $this->routeMap[$route->method->value][$route->route] = [$controller, $method->getName()];
+                }
+            }
+        }
     }
 
     /**

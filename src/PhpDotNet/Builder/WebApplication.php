@@ -88,6 +88,10 @@ final class WebApplication {
         $this->routes['post'][$path] = $callback;
     }
 
+    public function useAttributeRouting(): void {
+        $this->router->useAttributes = true;
+    }
+
     /**
      * Runs the configured application.
      *

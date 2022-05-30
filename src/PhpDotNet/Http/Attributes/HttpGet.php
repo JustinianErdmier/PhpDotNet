@@ -15,7 +15,7 @@ use Attribute;
 
 #[Attribute(Attribute::TARGET_METHOD | Attribute::IS_REPEATABLE)]
 class HttpGet extends HttpRoute {
-    public function __construct(string $routePath) {
-        parent::__construct($routePath);
+    public function __construct(string $route) {
+        parent::__construct($route);
     }
 }

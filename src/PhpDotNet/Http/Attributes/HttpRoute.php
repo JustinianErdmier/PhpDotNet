@@ -15,6 +15,6 @@ use Attribute;
 use PhpDotNet\Http\HttpMethod;
 
 #[Attribute(Attribute::TARGET_METHOD | Attribute::IS_REPEATABLE)]
-class HttpRoute {
-    public function __construct(public string $routePath, public HttpMethod $method = HttpMethod::Get) {}
+abstract class HttpRoute {
+    public function __construct(public string $route, public HttpMethod $method = HttpMethod::Get) {}
 }

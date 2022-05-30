@@ -16,7 +16,7 @@ use PhpDotNet\Http\HttpMethod;
 
 #[Attribute(Attribute::TARGET_METHOD | Attribute::IS_REPEATABLE)]
 class HttpPost extends HttpRoute {
-    public function __construct(string $routePath) {
-        parent::__construct($routePath, HttpMethod::Post);
+    public function __construct(string $route) {
+        parent::__construct($route, HttpMethod::Post);
     }
 }
