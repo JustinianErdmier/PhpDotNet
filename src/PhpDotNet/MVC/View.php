@@ -109,8 +109,7 @@ final class View {
         }
 
         if ($this->useDefaultViewPath) {
-            $view     = '/' . $this->view . '.phtml';
-            $viewPath = $this->resolveViewPath($view);
+            $viewPath = self::$viewDir . '/' . $this->view . '.phtml';
         } else {
             $viewPath = $this->view;
         }

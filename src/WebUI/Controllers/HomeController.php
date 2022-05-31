@@ -19,6 +19,11 @@ class HomeController extends ControllerBase {
         return View::make('Home/Index');
     }
 
+    #[HttpGet('/Manage')]
+    public function manage(): View {
+        return View::make('Home/Manage/Manage');
+    }
+
     #[HttpGet('/NotFound')]
     public function notFound(): View {
         return View::make('Home/NotFound');
