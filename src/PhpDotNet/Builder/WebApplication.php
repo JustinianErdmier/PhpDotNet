@@ -11,6 +11,7 @@ namespace PhpDotNet\Builder;
 
 use PhpDotNet\Exceptions\Http\RoutesNotConfigured;
 use PhpDotNet\HTTP\Router;
+use PhpDotNet\MVC\View;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -46,6 +47,10 @@ final class WebApplication {
      */
     public static function createBuilder(): WebApplicationBuilder {
         return new WebApplicationBuilder();
+    }
+
+    public function configureViewPath(string $viewPath): void {
+        View::setViewPath($viewPath);
     }
 
     /**
