@@ -16,8 +16,10 @@ use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use Monolog\Processor\PsrLogMessageProcessor;
 use PhpDotNet\Http\Router;
+use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use function DI\autowire;
+use function DI\create;
 
 /**
  * A builder for web applications and services.
@@ -123,8 +125,19 @@ final class WebApplicationBuilder {
      *
      * @return void
      */
-    public function addService(string $interfaceFQN, string $classFQN): void {
+    public function addAutoWireService(string $interfaceFQN, string $classFQN): void {
         $this->services[$interfaceFQN] = autowire($classFQN);
+    }
+
+    /**
+     * Adds a services to the {@see ContainerInterface} using the create method.
+     *
+     * @param string $classFQN
+     *
+     * @return void
+     */
+    public function addCreateService(string $classFQN): void {
+        $this->services[$classFQN] = create();
     }
 
     /**
