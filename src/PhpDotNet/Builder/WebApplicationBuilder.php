@@ -15,9 +15,11 @@ use Exception;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use Monolog\Processor\PsrLogMessageProcessor;
+use PhpDotNet\Exceptions\Http\ControllerMapNotFound;
 use PhpDotNet\Http\Router;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
+use ReflectionException;
 use function DI\autowire;
 use function DI\create;
 
@@ -211,6 +213,11 @@ final class WebApplicationBuilder {
 
         if (!empty($this->controllers)) {
             Router::registerControllers($this->controllers);
+            try {
+                Router::registerAttributeRoutes();
+            } catch (ControllerMapNotFound|ReflectionException $exception) {
+                $this->logger->error('Error registering attribute routes.\n{message}', ['message' => $exception->getMessage()]);
+            }
         }
 
         Router::registerContainer($container);
