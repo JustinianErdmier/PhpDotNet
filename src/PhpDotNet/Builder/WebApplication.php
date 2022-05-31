@@ -59,6 +59,10 @@ final class WebApplication {
         View::setViewDir($viewPath);
     }
 
+    public function useMiddleware(array $callback): void {
+        $this->container->call($callback);
+    }
+
     /**
      * Runs the configured application.
      *
