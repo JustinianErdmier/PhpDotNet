@@ -6,6 +6,7 @@
       <sourceFolder url="file://$MODULE_DIR$/tests" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src/PhpDotNet" isTestSource="false" packagePrefix="PhpDotNet\" />
       <sourceFolder url="file://$MODULE_DIR$/tests/PhpDotNet" isTestSource="true" packagePrefix="PhpDotNet\" />
+      <sourceFolder url="file://$MODULE_DIR$/src/WebUI" isTestSource="false" packagePrefix="WebUI\" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/sebastian/version" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/webmozart/assert" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/phpdocumentor/reflection-common" />
@@ -57,5 +58,6 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="bootstrap" level="application" />
   </component>
 </module>

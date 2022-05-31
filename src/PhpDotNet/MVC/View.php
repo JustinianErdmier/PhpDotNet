@@ -80,6 +80,17 @@ final class View {
     }
 
     /**
+     * Calls {@see View::render()}.
+     *
+     * @return string
+     * @throws ViewNotFoundException
+     * @throws LayoutNotFoundException
+     */
+    public function __toString(): string {
+        return $this->render();
+    }
+
+    /**
      * Builds the {@see View} and returns it as a string to be echoed.
      *
      * @return string
@@ -87,10 +98,10 @@ final class View {
      * @throws LayoutNotFoundException
      */
     public function render(): string {
-        if (empty(self::$layoutPath)) {
-            $layoutPath = self::$viewDir . '/Shared/Layout.phtml';
-        } else {
+        if (!empty(self::$layoutPath)) {
             $layoutPath = self::$layoutPath;
+        } else {
+            $layoutPath = self::$viewDir . '/Shared/Layout.phtml';
         }
 
         if (!file_exists($layoutPath)) {
@@ -121,17 +132,6 @@ final class View {
         $view = (string)ob_get_clean();
 
         return str_replace('{{content}}', $view, $layout);
-    }
-
-    /**
-     * Calls {@see View::render()}.
-     *
-     * @return string
-     * @throws ViewNotFoundException
-     * @throws LayoutNotFoundException
-     */
-    public function __toString(): string {
-        return $this->render();
     }
 
     /**

@@ -26,7 +26,8 @@
   "minimum-stability": "stable",
   "autoload":          {
     "psr-4": {
-      "PhpDotNet\\": "src/PhpDotNet"
+      "PhpDotNet\\": "src/PhpDotNet",
+      "WebUI\\":     "src/WebUI"
     }
   },
   "autoload-dev":      {

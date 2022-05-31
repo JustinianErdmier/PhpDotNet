@@ -198,7 +198,9 @@ final class WebApplicationBuilder {
      * @return WebApplication
      */
     public function build(): WebApplication {
-        $this->servicesBuilder->addDefinitions($this->services);
+        if (!empty($this->services)) {
+            $this->servicesBuilder->addDefinitions($this->services);
+        }
 
         try {
             $container = $this->servicesBuilder->build();
