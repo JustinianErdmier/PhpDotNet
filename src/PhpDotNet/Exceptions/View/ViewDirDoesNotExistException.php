@@ -5,12 +5,10 @@
  * Licensed under the MIT License - See LICENSE in repository root.           *
  ******************************************************************************/
 
-declare(strict_types = 1);
-
-namespace PhpDotNet\Exceptions;
+namespace PhpDotNet\Exceptions\View;
 
 use Exception;
 
-class ViewNotFoundException extends Exception {
-    protected $message = 'View Not Found';
+class ViewDirDoesNotExistException extends Exception {
+    protected $message = 'The directory specified for the Views does not exists.';
 }

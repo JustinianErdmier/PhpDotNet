@@ -9,11 +9,12 @@ declare(strict_types = 1);
 
 namespace PhpDotNet\MVC;
 
-use PhpDotNet\Exceptions\ViewNotFoundException;
+use PhpDotNet\Exceptions\View\ViewDirDoesNotExistException;
+use PhpDotNet\Exceptions\View\ViewNotFoundException;
 use stdClass;
 
 final class View {
-    private static string $viewPath;
+    private static string $viewDir;
 
     /**
      * Instantiates a new {@see View}.
@@ -42,12 +43,19 @@ final class View {
     /**
      * Sets the path to locate views.
      *
-     * @param string $viewPath
+     * @param string $viewDir
      *
      * @return void
+     * @throws ViewDirDoesNotExistException
      */
-    public static function setViewPath(string $viewPath): void {
-        self::$viewPath = $viewPath;
+    public static function setViewDir(string $viewDir): void {
+        $viewDir = realpath($viewDir);
+
+        if ($viewDir === false) {
+            throw new ViewDirDoesNotExistException();
+        }
+
+        self::$viewDir = $viewDir;
     }
 
     /**
@@ -58,23 +66,14 @@ final class View {
      */
     public function render(): string {
         if ($this->useDefaultViewPath) {
-            $viewPath = self::$viewPath . $this->view . '.phtml';
-
-            if (!file_exists($viewPath)) {
-                $viewPath = self::$viewPath . $this->view . '.php';
-                if (!file_exists($viewPath)) {
-                    throw new ViewNotFoundException();
-                }
-            }
+            $view     = '/' . $this->view . '.phtml';
+            $viewPath = $this->resolveViewPath($view);
         } else {
-            $viewPath = $this->view . '.phtml';
+            $viewPath = $this->view;
+        }
 
-            if (!file_exists($viewPath)) {
-                $viewPath = $this->view . '.php';
-                if (!file_exists($viewPath)) {
-                    throw new ViewNotFoundException();
-                }
-            }
+        if (!file_exists($viewPath)) {
+            throw new ViewNotFoundException();
         }
 
         ob_start();
@@ -92,5 +91,75 @@ final class View {
      */
     public function __toString(): string {
         return $this->render();
+    }
+
+    /**
+     * Attempts to find the path for the given view file.
+     *
+     * @param string $view  The view file (e.g., /View.phtml').
+     *
+     * @return string
+     */
+    private function resolveViewPath(string $view): string {
+        $viewDir  = scandir(self::$viewDir);
+        $viewPath = self::$viewDir . $view;
+
+        if (!file_exists($viewPath)) {
+            foreach ($viewDir as $item) {
+                if (is_dir($item)) {
+                    $viewPath = $item . $view;
+                    if (file_exists($viewPath)) {
+                        break;
+                    }
+
+                    $viewDir = scandir($item);
+
+                    foreach ($viewDir as $item2) {
+                        if (is_dir($item2)) {
+                            $viewPath = $item2 . $view;
+                            if (file_exists($viewPath)) {
+                                break;
+                            }
+
+                            $viewDir = scandir($item2);
+
+                            foreach ($viewDir as $item3) {
+                                if (is_dir($item3)) {
+                                    $viewPath = $item3 . $view;
+                                    if (file_exists($viewPath)) {
+                                        break;
+                                    }
+
+                                    $viewDir = scandir($item3);
+
+                                    foreach ($viewDir as $item4) {
+                                        if (is_dir($item4)) {
+                                            $viewPath = $item4 . $view;
+                                            if (file_exists($viewPath)) {
+                                                break;
+                                            }
+
+                                            $viewDir = scandir($item4);
+
+                                            foreach ($viewDir as $item5) {
+                                                if (is_dir($item5)) {
+                                                    $viewPath = $item5 . $view;
+                                                    if (file_exists($viewPath)) {
+                                                        break;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                }
+            }
+        }
+
+        return $viewPath;
     }
 }

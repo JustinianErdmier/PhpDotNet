@@ -50,7 +50,7 @@ final class WebApplication {
     }
 
     public function configureViewPath(string $viewPath): void {
-        View::setViewPath($viewPath);
+        View::setViewDir($viewPath);
     }
 
     /**
