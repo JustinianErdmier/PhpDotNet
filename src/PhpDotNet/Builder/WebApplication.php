@@ -10,6 +10,7 @@ declare(strict_types = 1);
 namespace PhpDotNet\Builder;
 
 use PhpDotNet\Exceptions\Http\RoutesNotConfigured;
+use PhpDotNet\Exceptions\View\LayoutPathDoesNotExistException;
 use PhpDotNet\Exceptions\View\ViewDirDoesNotExistException;
 use PhpDotNet\HTTP\Router;
 use PhpDotNet\MVC\View;
@@ -57,6 +58,15 @@ final class WebApplication {
      */
     public function configureViewDir(string $viewPath): void {
         View::setViewDir($viewPath);
+    }
+
+    /**
+     * Attempts to configure the layout for building views.
+     *
+     * @throws LayoutPathDoesNotExistException
+     */
+    public function configureLayoutPath(string $layoutPath): void {
+        View::setLayoutPath($layoutPath);
     }
 
     public function useMiddleware(array $callback): void {

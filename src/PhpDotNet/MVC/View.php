@@ -9,12 +9,15 @@ declare(strict_types = 1);
 
 namespace PhpDotNet\MVC;
 
+use PhpDotNet\Exceptions\View\LayoutNotFoundException;
+use PhpDotNet\Exceptions\View\LayoutPathDoesNotExistException;
 use PhpDotNet\Exceptions\View\ViewDirDoesNotExistException;
 use PhpDotNet\Exceptions\View\ViewNotFoundException;
 use stdClass;
 
 final class View {
     private static string $viewDir;
+    private static string $layoutPath = '';
 
     /**
      * Instantiates a new {@see View}.
@@ -59,12 +62,41 @@ final class View {
     }
 
     /**
+     * Attempts to set the layout path.
+     *
+     * @param string $layoutPath
+     *
+     * @return void
+     * @throws LayoutPathDoesNotExistException
+     */
+    public static function setLayoutPath(string $layoutPath): void {
+        $layoutPath = realpath($layoutPath);
+
+        if ($layoutPath === false) {
+            throw new LayoutPathDoesNotExistException();
+        }
+
+        self::$layoutPath = $layoutPath;
+    }
+
+    /**
      * Builds the {@see View} and returns it as a string to be echoed.
      *
      * @return string
      * @throws ViewNotFoundException
+     * @throws LayoutNotFoundException
      */
     public function render(): string {
+        if (empty(self::$layoutPath)) {
+            $layoutPath = self::$viewDir . '/Shared/Layout.phtml';
+        } else {
+            $layoutPath = self::$layoutPath;
+        }
+
+        if (!file_exists($layoutPath)) {
+            throw new LayoutNotFoundException();
+        }
+
         if ($this->useDefaultViewPath) {
             $view     = '/' . $this->view . '.phtml';
             $viewPath = $this->resolveViewPath($view);
@@ -78,9 +110,17 @@ final class View {
 
         ob_start();
 
+        include $layoutPath;
+
+        $layout = (string)ob_get_clean();
+
+        ob_start();
+
         include $viewPath;
 
-        return (string)ob_get_clean();
+        $view = (string)ob_get_clean();
+
+        return str_replace('{{content}}', $view, $layout);
     }
 
     /**
@@ -88,6 +128,7 @@ final class View {
      *
      * @return string
      * @throws ViewNotFoundException
+     * @throws LayoutNotFoundException
      */
     public function __toString(): string {
         return $this->render();
