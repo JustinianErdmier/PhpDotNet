@@ -13,6 +13,7 @@ use PhpDotNet\Exceptions\Http\RoutesNotConfigured;
 use PhpDotNet\HTTP\Router;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
+use RuntimeException;
 
 /**
  * The web application used to configure the HTTP pipeline and routes.
@@ -53,7 +54,9 @@ final class WebApplication {
         $this->container->call($callback);
     }
 
-    public function mapControllerRoute(string $controller, string $action): void {}
+    public function mapControllerRoute(string $controller, string $action): void {
+        throw new RuntimeException('Not yet implemented.');
+    }
 
     /**
      * Runs the configured application.

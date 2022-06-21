@@ -11,13 +11,18 @@ use PhpDotNet\Builder\WebApplicationBuilder;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-// Create Web Application Builder...
-$builder = new WebApplicationBuilder();
+try {
+    // Create Web Application Builder...
+    $builder = new WebApplicationBuilder();
 
-// Add services...
-$builder->addControllersWithViews();
+    // Add services...
+    $builder->addControllersWithViews();
 
-// Build Web Application...
-$app = $builder->build();
+    // Build Web Application...
+    $app = $builder->build();
 
-$app->run();
+    $app->run();
+} catch (Exception $exception) {
+    // TODO: Log error.
+    die;
+}
