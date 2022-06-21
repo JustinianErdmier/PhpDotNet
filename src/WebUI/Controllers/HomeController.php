@@ -12,20 +12,32 @@ namespace WebUI\Controllers;
 use PhpDotNet\Http\Attributes\HttpGet;
 use PhpDotNet\MVC\ControllerBase;
 use PhpDotNet\MVC\View;
+use WebUI\Core\Exceptions\ViewPathCannotBeBuiltException;
+use WebUI\Core\ViewPath;
 
 class HomeController extends ControllerBase {
+
+    /**
+     * @throws ViewPathCannotBeBuiltException
+     */
     #[HttpGet('/')]
     public function index(): View {
-        return View::make('Home/Index');
+        return View::make(view:ViewPath::HomeRoot->build('Index'));
     }
 
+    /**
+     * @throws ViewPathCannotBeBuiltException
+     */
     #[HttpGet('/Manage')]
     public function manage(): View {
-        return View::make('Home/Manage/Manage');
+        return View::make(ViewPath::HomeManageRoot->build('Manage'));
     }
 
+    /**
+     * @throws ViewPathCannotBeBuiltException
+     */
     #[HttpGet('/NotFound')]
     public function notFound(): View {
-        return View::make('Home/NotFound');
+        return View::make(ViewPath::Shared->build('NotFound'));
     }
 }

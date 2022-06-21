@@ -24,7 +24,7 @@ final class View {
      *
      * @param string        $view                Path to the view to render.
      * @param stdClass|null $model               The view model for building the view.
-     * @param bool          $useDefaultViewPath  Configures whether to use locate the view from the default view path.
+     * @param bool          $useDefaultViewPath  Configures whether to locate the view from the default view path.
      *
      * @noinspection PhpPropertyOnlyWrittenInspection
      */
@@ -35,7 +35,7 @@ final class View {
      *
      * @param string        $view                Path to the view to render.
      * @param stdClass|null $model               The view model for building the view.
-     * @param bool          $useDefaultViewPath  Configures whether to use locate the view from the default view path.
+     * @param bool          $useDefaultViewPath  Configures whether to locate the view from the default view path.
      *
      * @return View
      */
@@ -54,7 +54,7 @@ final class View {
     public static function setViewDir(string $viewDir): void {
         $viewDir = realpath($viewDir);
 
-        if ($viewDir === false) {
+        if ($viewDir === false || !is_dir($viewDir)) {
             throw new ViewDirDoesNotExistException();
         }
 
@@ -72,7 +72,7 @@ final class View {
     public static function setLayoutPath(string $layoutPath): void {
         $layoutPath = realpath($layoutPath);
 
-        if ($layoutPath === false) {
+        if ($layoutPath === false || !is_file($layoutPath)) {
             throw new LayoutPathDoesNotExistException();
         }
 
@@ -85,6 +85,7 @@ final class View {
      * @return string
      * @throws ViewNotFoundException
      * @throws LayoutNotFoundException
+     * @throws ViewDirDoesNotExistException
      */
     public function __toString(): string {
         return $this->render();
@@ -96,15 +97,20 @@ final class View {
      * @return string
      * @throws ViewNotFoundException
      * @throws LayoutNotFoundException
+     * @throws ViewDirDoesNotExistException
      */
     public function render(): string {
+        if (empty(self::$viewDir)) {
+            throw new ViewDirDoesNotExistException();
+        }
+
         if (!empty(self::$layoutPath)) {
             $layoutPath = self::$layoutPath;
         } else {
             $layoutPath = self::$viewDir . '/Shared/Layout.phtml';
         }
 
-        if (!file_exists($layoutPath)) {
+        if (!is_file($layoutPath)) {
             throw new LayoutNotFoundException();
         }
 
@@ -130,76 +136,76 @@ final class View {
 
         $view = (string)ob_get_clean();
 
-        return str_replace('{{content}}', $view, $layout);
+        return str_replace('{{RenderContent}}', $view, $layout);
     }
 
-    /**
-     * Attempts to find the path for the given view file.
-     *
-     * @param string $view  The view file (e.g., /View.phtml').
-     *
-     * @return string
-     */
-    private function resolveViewPath(string $view): string {
-        $viewDir  = scandir(self::$viewDir);
-        $viewPath = self::$viewDir . $view;
-
-        if (!file_exists($viewPath)) {
-            foreach ($viewDir as $item) {
-                if (is_dir($item)) {
-                    $viewPath = $item . $view;
-                    if (file_exists($viewPath)) {
-                        break;
-                    }
-
-                    $viewDir = scandir($item);
-
-                    foreach ($viewDir as $item2) {
-                        if (is_dir($item2)) {
-                            $viewPath = $item2 . $view;
-                            if (file_exists($viewPath)) {
-                                break;
-                            }
-
-                            $viewDir = scandir($item2);
-
-                            foreach ($viewDir as $item3) {
-                                if (is_dir($item3)) {
-                                    $viewPath = $item3 . $view;
-                                    if (file_exists($viewPath)) {
-                                        break;
-                                    }
-
-                                    $viewDir = scandir($item3);
-
-                                    foreach ($viewDir as $item4) {
-                                        if (is_dir($item4)) {
-                                            $viewPath = $item4 . $view;
-                                            if (file_exists($viewPath)) {
-                                                break;
-                                            }
-
-                                            $viewDir = scandir($item4);
-
-                                            foreach ($viewDir as $item5) {
-                                                if (is_dir($item5)) {
-                                                    $viewPath = $item5 . $view;
-                                                    if (file_exists($viewPath)) {
-                                                        break;
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                }
-            }
-        }
-
-        return $viewPath;
-    }
+    // /**
+    //  * Attempts to find the path for the given view file.
+    //  *
+    //  * @param string $view  The view file (e.g., /View.phtml').
+    //  *
+    //  * @return string
+    //  */
+    // private function resolveViewPath(string $view): string {
+    //     $viewDir  = scandir(self::$viewDir);
+    //     $viewPath = self::$viewDir . $view;
+    //
+    //     if (!file_exists($viewPath)) {
+    //         foreach ($viewDir as $item) {
+    //             if (is_dir($item)) {
+    //                 $viewPath = $item . $view;
+    //                 if (file_exists($viewPath)) {
+    //                     break;
+    //                 }
+    //
+    //                 $viewDir = scandir($item);
+    //
+    //                 foreach ($viewDir as $item2) {
+    //                     if (is_dir($item2)) {
+    //                         $viewPath = $item2 . $view;
+    //                         if (file_exists($viewPath)) {
+    //                             break;
+    //                         }
+    //
+    //                         $viewDir = scandir($item2);
+    //
+    //                         foreach ($viewDir as $item3) {
+    //                             if (is_dir($item3)) {
+    //                                 $viewPath = $item3 . $view;
+    //                                 if (file_exists($viewPath)) {
+    //                                     break;
+    //                                 }
+    //
+    //                                 $viewDir = scandir($item3);
+    //
+    //                                 foreach ($viewDir as $item4) {
+    //                                     if (is_dir($item4)) {
+    //                                         $viewPath = $item4 . $view;
+    //                                         if (file_exists($viewPath)) {
+    //                                             break;
+    //                                         }
+    //
+    //                                         $viewDir = scandir($item4);
+    //
+    //                                         foreach ($viewDir as $item5) {
+    //                                             if (is_dir($item5)) {
+    //                                                 $viewPath = $item5 . $view;
+    //                                                 if (file_exists($viewPath)) {
+    //                                                     break;
+    //                                                 }
+    //                                             }
+    //                                         }
+    //                                     }
+    //                                 }
+    //                             }
+    //                         }
+    //                     }
+    //                 }
+    //
+    //             }
+    //         }
+    //     }
+    //
+    //     return $viewPath;
+    // }
 }

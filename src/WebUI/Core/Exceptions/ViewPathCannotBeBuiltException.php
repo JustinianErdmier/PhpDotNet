@@ -5,10 +5,8 @@
  * Licensed under the MIT License - See LICENSE in repository root.           *
  ******************************************************************************/
 
-namespace PhpDotNet\Exceptions\View;
+namespace WebUI\Core\Exceptions;
 
 use Exception;
 
-class ViewDirDoesNotExistException extends Exception {
-    protected $message = 'The directory specified for the Views does not exist.';
-}
+class ViewPathCannotBeBuiltException extends Exception { }
