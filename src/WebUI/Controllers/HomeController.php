@@ -13,42 +13,28 @@ use PhpDotNet\Builder\WebApplication;
 use PhpDotNet\Http\Attributes\HttpGet;
 use PhpDotNet\MVC\ControllerBase;
 use PhpDotNet\MVC\View;
-use WebUI\Core\Exceptions\ViewPathCannotBeBuiltException;
-use WebUI\Core\ViewPath;
 
 class HomeController extends ControllerBase {
 
-    /**
-     * @throws ViewPathCannotBeBuiltException
-     */
     #[HttpGet('/')]
     public function index(): View {
-        return View::make(view:ViewPath::HomeRoot->build('Index'));
+        return View::make(view:'Home/Index');
     }
-
-    /**
-     * @throws ViewPathCannotBeBuiltException
-     */
+    
     #[HttpGet('/Manage/{name}')]
     public function manage(string $name): View {
         WebApplication::$app->logger->info('Home/Manage/Manage route parameter: $name => {name}', ['name' => $name]);
-        return View::make(ViewPath::HomeManageRoot->build('Manage'));
+        return View::make('Home/Manage/Manage');
     }
 
-    /**
-     * @throws ViewPathCannotBeBuiltException
-     */
     #[HttpGet('/NotFound')]
     public function notFound(): View {
-        return View::make(ViewPath::Shared->build('NotFound'));
+        return View::make('Shared/NotFound');
     }
 
-    /**
-     * @throws ViewPathCannotBeBuiltException
-     */
     #[HttpGet('/Error')]
     public function error(string $message): View {
         WebApplication::$app->logger->info('Error view parameter: $message => {message}', ['message' => $message]);
-        return View::make(ViewPath::Shared->build('Error'));
+        return View::make('Shared/Error');
     }
 }

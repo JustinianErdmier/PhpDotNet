@@ -9,9 +9,9 @@ declare(strict_types = 1);
 
 namespace PhpDotNet\MVC;
 
+use PhpDotNet\Exceptions\Common\DirectoryNotFoundException;
 use PhpDotNet\Exceptions\View\LayoutNotFoundException;
 use PhpDotNet\Exceptions\View\LayoutPathDoesNotExistException;
-use PhpDotNet\Exceptions\View\ViewDirDoesNotExistException;
 use PhpDotNet\Exceptions\View\ViewNotFoundException;
 use stdClass;
 
@@ -49,13 +49,13 @@ final class View {
      * @param string $viewDir
      *
      * @return void
-     * @throws ViewDirDoesNotExistException
+     * @throws DirectoryNotFoundException
      */
     public static function setViewDir(string $viewDir): void {
         $viewDir = realpath($viewDir);
 
         if ($viewDir === false || !is_dir($viewDir)) {
-            throw new ViewDirDoesNotExistException();
+            throw new DirectoryNotFoundException('The directory specified for the Views does not exist.');
         }
 
         self::$viewDir = $viewDir;
@@ -85,7 +85,7 @@ final class View {
      * @return string
      * @throws ViewNotFoundException
      * @throws LayoutNotFoundException
-     * @throws ViewDirDoesNotExistException
+     * @throws DirectoryNotFoundException
      */
     public function __toString(): string {
         return $this->render();
@@ -97,11 +97,11 @@ final class View {
      * @return string
      * @throws ViewNotFoundException
      * @throws LayoutNotFoundException
-     * @throws ViewDirDoesNotExistException
+     * @throws DirectoryNotFoundException
      */
     public function render(): string {
         if (empty(self::$viewDir)) {
-            throw new ViewDirDoesNotExistException();
+            throw new DirectoryNotFoundException('Could not find views directory while attempting to render view.');
         }
 
         if (!empty(self::$layoutPath)) {

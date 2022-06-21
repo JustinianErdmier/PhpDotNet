@@ -19,6 +19,7 @@ use PhpDotNet\Exceptions\Common\DirectoryNotFoundException;
 use PhpDotNet\Exceptions\Http\ControllerMapNotFound;
 use PhpDotNet\Http\Router;
 use PhpDotNet\MVC\MvcDirMap;
+use PhpDotNet\MVC\View;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use ReflectionException;
@@ -151,11 +152,15 @@ final class WebApplicationBuilder {
         ];
 
         // Configure MVC directory paths.
-        MvcDirMap::initialize(__DIR__ . '/../../' . $options['WebUIDirectory']);
+        MvcDirMap::initialize(__DIR__ . '/../../../src/' . $options['WebUIDirectory']);
+        // TODO: Add logic for overriding the remaining dir paths.
 
         // Configure router for MVC.
         Router::registerControllers(MvcDirMap::$controllers);
         Router::registerAttributeRoutes();
+
+        // Configure View class.
+        View::setViewDir(MvcDirMap::$views);
     }
 
     /**

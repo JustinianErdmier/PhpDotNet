@@ -9,8 +9,8 @@ declare(strict_types = 1);
 
 namespace PhpDotNet\Exceptions\Common;
 
-use InvalidArgumentException;
+use Exception;
 
-class DirectoryNotFoundException extends InvalidArgumentException {
+class DirectoryNotFoundException extends Exception {
 
 }
