@@ -5,8 +5,12 @@
  * Licensed under the MIT License - See LICENSE in repository root.           *
  ******************************************************************************/
 
+declare(strict_types = 1);
+
 namespace PhpDotNet\Http;
 
+use FastRoute\Dispatcher;
+use FastRoute\RouteCollector;
 use PhpDotNet\Builder\WebApplication;
 use PhpDotNet\Exceptions\Http\ControllerMapNotFound;
 use PhpDotNet\Exceptions\Http\RoutesNotConfigured;
@@ -15,6 +19,8 @@ use Psr\Container\ContainerInterface;
 use ReflectionAttribute;
 use ReflectionClass;
 use ReflectionException;
+use WebUI\Controllers\HomeController;
+use function FastRoute\simpleDispatcher;
 
 final class Router {
     /**
@@ -102,18 +108,65 @@ final class Router {
      * @throws RoutesNotConfigured
      */
     public static function resolve(): mixed {
+        // Validate routes have been configured.
         if (empty(self::$routeMap)) {
             throw new RoutesNotConfigured();
         }
 
-        $method   = Request::getMethod();
-        $path     = Request::getPath();
-        $callback = self::$routeMap[$method][$path] ?? self::$routeMap['get']['/NotFound'];
+        // Build dispatcher.
+        $dispatcher = simpleDispatcher(function(RouteCollector $collector) {
+            $registeredMethods = array_keys(self::$routeMap);
+            // echo '<pre>';
+            // var_dump(self::$routeMap);
+            // echo '<pre>';
+            // exit;
+            foreach ($registeredMethods as $method) {
+                $registeredRoutes = array_keys(self::$routeMap[$method]);
+                foreach ($registeredRoutes as $route) {
+                    $collector->addRoute($method, $route, self::$routeMap[$method][$route]);
+                }
+            }
+        });
 
-        if ($callback === self::$routeMap['get']['/NotFound']) {
-            Response::setStatusCode(404);
+        // Dispatch request.
+        $method    = Request::getMethod();
+        $uri       = Request::getURI();
+        $routeInfo = $dispatcher->dispatch($method, $uri);
+        $callback  = [HomeController::class, 'notFound'];
+        $params    = [];
+
+        switch ($routeInfo[0]) {
+            case Dispatcher::NOT_FOUND:
+                Response::setStatusCode(404);
+                break;
+            case Dispatcher::METHOD_NOT_ALLOWED:
+                $callback       = [HomeController::class, 'error'];
+                $allowedMethods = implode(', ', $routeInfo[1]);
+                $message        = 'This request method is not allowed for this URI. Please make your request using ' . $allowedMethods;
+                $params         = ['message' => $message];
+                Response::setStatusCode(405);
+                break;
+            case Dispatcher::FOUND:
+                $callback = $routeInfo[1];
+                /** @noinspection MultiAssignmentUsageInspection */
+                $params = $routeInfo[2];
+                break;
+            default:
+                $callback = [HomeController::class, 'error'];
+                $message  = 'Unable to process request.';
+                $params   = ['message' => $message];
+
+                Response::setStatusCode(500);
+                break;
         }
+        return self::$container->call($callback, $params);
 
-        return self::$container->call($callback);
+        // $callback = self::$routeMap[$method][$uri] ?? self::$routeMap['get']['/NotFound'];
+        //
+        // if ($callback === self::$routeMap['get']['/NotFound']) {
+        //     Response::setStatusCode(404);
+        // }
+        //
+        // return self::$container->call($callback);
     }
 }

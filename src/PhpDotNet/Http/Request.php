@@ -19,13 +19,13 @@ final class Request {
      *
      * @return string
      */
-    public static function getPath(): string {
-        $path     = $_SERVER['REQUEST_URI'] ?? '/';
-        $position = strpos($path, '?');
+    public static function getURI(): string {
+        $uri      = $_SERVER['REQUEST_URI'] ?? '/';
+        $position = strpos($uri, '?');
         if ($position === false) {
-            return $path;
+            return rawurldecode($uri);
         }
-        return substr($path, 0, $position);
+        return substr($uri, 0, $position);
     }
 
     /**
