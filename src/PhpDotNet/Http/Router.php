@@ -84,6 +84,8 @@ final class Router {
             WebApplication::$app->logger->error('Caught runtime exception while mapping controller directory.\n{message}', ['message' => $exception->getMessage()]);
             throw new RuntimeException($exception->getMessage());
         }
+
+        self::$controllerMap = array_keys(self::$controllerMap);
     }
 
     /**
