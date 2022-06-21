@@ -33,13 +33,19 @@ final class View {
     /**
      * Statically instantiates a new {@see View}.
      *
-     * @param string        $view                Path to the view to render.
+     * @param string|null   $view                Path to the view to render.
      * @param stdClass|null $model               The view model for building the view.
      * @param bool          $useDefaultViewPath  Configures whether to locate the view from the default view path.
      *
      * @return View
      */
-    public static function make(string $view, ?stdClass $model = null, bool $useDefaultViewPath = true): self {
+    public static function make(?string $view = null, ?stdClass $model = null, bool $useDefaultViewPath = true): self {
+        // if ($view === null) {
+        //     $view = InsightsUtil::getCallingMethodName();
+        // }
+        // $controller = InsightsUtil::getCallingClassName();
+        // WebApplication::$app->logger->info('View caller: {caller}', ['caller' => $callingMethodName]);
+        // WebApplication::$app->logger->info('View caller: {caller}', ['caller' => $callingClassName]);
         return new View($view, $model, $useDefaultViewPath);
     }
 
