@@ -9,9 +9,11 @@ declare(strict_types = 1);
 
 namespace PhpDotNet\Http;
 
+use Composer\Autoload\ClassMapGenerator;
 use FastRoute\Dispatcher;
 use FastRoute\RouteCollector;
 use PhpDotNet\Builder\WebApplication;
+use PhpDotNet\Exceptions\Common\DirectoryNotFoundException;
 use PhpDotNet\Exceptions\Http\ControllerMapNotFound;
 use PhpDotNet\Exceptions\Http\RoutesNotConfigured;
 use PhpDotNet\Http\Attributes\HttpRoute;
@@ -19,6 +21,7 @@ use Psr\Container\ContainerInterface;
 use ReflectionAttribute;
 use ReflectionClass;
 use ReflectionException;
+use RuntimeException;
 use WebUI\Controllers\HomeController;
 use function FastRoute\cachedDispatcher;
 
@@ -62,12 +65,25 @@ final class Router {
     /**
      * Manually sets {@see Router::$controllerMap}.
      *
-     * @param array $controllers  Controllers should be configured as a single-dimensional array where the values are the controller's FQN name.
+     * @param string $controllerDir  The path where the controllers are located.
      *
      * @return void
+     * @throws DirectoryNotFoundException
+     * @throws RuntimeException
      */
-    public static function registerControllers(array $controllers): void {
-        self::$controllerMap = $controllers;
+    public static function registerControllers(string $controllerDir): void {
+        $controllerDir = realpath($controllerDir);
+
+        if ($controllerDir === false || !is_dir($controllerDir)) {
+            throw new DirectoryNotFoundException('Could not find directory for mapping controllers.');
+        }
+
+        try {
+            self::$controllerMap = ClassMapGenerator::createMap($controllerDir);
+        } catch (RuntimeException $exception) {
+            WebApplication::$app->logger->error('Caught runtime exception while mapping controller directory.\n{message}', ['message' => $exception->getMessage()]);
+            throw new RuntimeException($exception->getMessage());
+        }
     }
 
     /**
@@ -116,10 +132,7 @@ final class Router {
         // Build dispatcher.
         $dispatcher = cachedDispatcher(function(RouteCollector $collector) {
             $registeredMethods = array_keys(self::$routeMap);
-            // echo '<pre>';
-            // var_dump(self::$routeMap);
-            // echo '<pre>';
-            // exit;
+
             foreach ($registeredMethods as $method) {
                 $registeredRoutes = array_keys(self::$routeMap[$method]);
                 foreach ($registeredRoutes as $route) {
@@ -159,14 +172,7 @@ final class Router {
                 Response::setStatusCode(500);
                 break;
         }
-        return self::$container->call($callback, $params);
 
-        // $callback = self::$routeMap[$method][$uri] ?? self::$routeMap['get']['/NotFound'];
-        //
-        // if ($callback === self::$routeMap['get']['/NotFound']) {
-        //     Response::setStatusCode(404);
-        // }
-        //
-        // return self::$container->call($callback);
+        return self::$container->call($callback, $params);
     }
 }

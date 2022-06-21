@@ -73,6 +73,8 @@ final class WebApplication {
         $this->container->call($callback);
     }
 
+    public function mapControllerRoute(string $controller, string $action): void {}
+
     /**
      * Runs the configured application.
      *

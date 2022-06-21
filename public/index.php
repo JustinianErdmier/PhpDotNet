@@ -10,7 +10,6 @@ declare(strict_types = 1);
 use PhpDotNet\Builder\WebApplicationBuilder;
 use PhpDotNet\Exceptions\View\LayoutPathDoesNotExistException;
 use PhpDotNet\Exceptions\View\ViewDirDoesNotExistException;
-use WebUI\Controllers\HomeController;
 use WebUI\Core\ViewPath;
 
 require_once __DIR__ . '/../vendor/autoload.php';
@@ -19,11 +18,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
 $builder = new WebApplicationBuilder();
 
 // Add services...
-
-// Add controllers...
-$builder->addControllers([
-                             HomeController::class
-                         ]);
+$builder->addControllersWithViews();
 
 // Build Web Application...
 $app = $builder->build();
