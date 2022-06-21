@@ -20,7 +20,7 @@ use ReflectionAttribute;
 use ReflectionClass;
 use ReflectionException;
 use WebUI\Controllers\HomeController;
-use function FastRoute\simpleDispatcher;
+use function FastRoute\cachedDispatcher;
 
 final class Router {
     /**
@@ -114,7 +114,7 @@ final class Router {
         }
 
         // Build dispatcher.
-        $dispatcher = simpleDispatcher(function(RouteCollector $collector) {
+        $dispatcher = cachedDispatcher(function(RouteCollector $collector) {
             $registeredMethods = array_keys(self::$routeMap);
             // echo '<pre>';
             // var_dump(self::$routeMap);
@@ -126,7 +126,7 @@ final class Router {
                     $collector->addRoute($method, $route, self::$routeMap[$method][$route]);
                 }
             }
-        });
+        }, ['cacheFile' => __DIR__ . '/../../../runtime/route.cache']);
 
         // Dispatch request.
         $method    = Request::getMethod();
