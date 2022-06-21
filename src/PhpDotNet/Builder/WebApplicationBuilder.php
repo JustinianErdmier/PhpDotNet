@@ -18,6 +18,7 @@ use Monolog\Processor\PsrLogMessageProcessor;
 use PhpDotNet\Exceptions\Common\DirectoryNotFoundException;
 use PhpDotNet\Exceptions\Http\ControllerMapNotFound;
 use PhpDotNet\Http\Router;
+use PhpDotNet\MVC\MvcDirMap;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use ReflectionException;
@@ -149,8 +150,11 @@ final class WebApplicationBuilder {
             'ControllerDirectory' => 'Controllers/'
         ];
 
-        $controllerDir = __DIR__ . '/../../' . $options['WebUIDirectory'] . $options['ControllerDirectory'];
-        Router::registerControllers($controllerDir);
+        // Configure MVC directory paths.
+        MvcDirMap::initialize(__DIR__ . '/../../' . $options['WebUIDirectory']);
+
+        // Configure router for MVC.
+        Router::registerControllers(MvcDirMap::$controllers);
         Router::registerAttributeRoutes();
     }
 
