@@ -15,9 +15,13 @@ use Exception;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use Monolog\Processor\PsrLogMessageProcessor;
+use PhpDotNet\Exceptions\Common\DirectoryNotFoundException;
+use PhpDotNet\Exceptions\Http\ControllerMapNotFound;
 use PhpDotNet\Http\Router;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
+use ReflectionException;
+use RuntimeException;
 use function DI\autowire;
 use function DI\create;
 
@@ -132,6 +136,10 @@ final class WebApplicationBuilder {
      * @param array $options  An array of options for configuring the MVC architecture to meet your project's specific structure.
      *
      * @return void
+     * @throws DirectoryNotFoundException
+     * @throws RuntimeException
+     * @throws ControllerMapNotFound
+     * @throws ReflectionException
      */
     public function addControllersWithViews(array $options = []): void {
         $options += [
@@ -143,6 +151,7 @@ final class WebApplicationBuilder {
 
         $controllerDir = __DIR__ . '/../../' . $options['WebUIDirectory'] . $options['ControllerDirectory'];
         Router::registerControllers($controllerDir);
+        Router::registerAttributeRoutes();
     }
 
     /**

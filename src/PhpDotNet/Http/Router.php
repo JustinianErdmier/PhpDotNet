@@ -173,6 +173,7 @@ final class Router {
                 break;
         }
 
+        /** @noinspection PhpPossiblePolymorphicInvocationInspection */
         return self::$container->call($callback, $params);
     }
 }
