@@ -13,7 +13,6 @@ use PhpDotNet\Exceptions\Common\DirectoryNotFoundException;
 use PhpDotNet\Exceptions\View\LayoutNotFoundException;
 use PhpDotNet\Exceptions\View\LayoutPathDoesNotExistException;
 use PhpDotNet\Exceptions\View\ViewNotFoundException;
-use stdClass;
 
 final class View {
     private static string $viewDir;
@@ -22,24 +21,24 @@ final class View {
     /**
      * Instantiates a new {@see View}.
      *
-     * @param string        $view                Path to the view to render.
-     * @param stdClass|null $model               The view model for building the view.
-     * @param bool          $useDefaultViewPath  Configures whether to locate the view from the default view path.
+     * @param string      $view                Path to the view to render.
+     * @param object|null $model               The view model for building the view.
+     * @param bool        $useDefaultViewPath  Configures whether to locate the view from the default view path.
      *
      * @noinspection PhpPropertyOnlyWrittenInspection
      */
-    public function __construct(private readonly string $view, private readonly ?stdClass $model = null, private readonly bool $useDefaultViewPath = true) {}
+    public function __construct(private readonly string $view, private readonly ?object $model = null, private readonly bool $useDefaultViewPath = true) {}
 
     /**
      * Statically instantiates a new {@see View}.
      *
-     * @param string|null   $view                Path to the view to render.
-     * @param stdClass|null $model               The view model for building the view.
-     * @param bool          $useDefaultViewPath  Configures whether to locate the view from the default view path.
+     * @param string|null $view                Path to the view to render.
+     * @param object|null $model               The view model for building the view.
+     * @param bool        $useDefaultViewPath  Configures whether to locate the view from the default view path.
      *
      * @return View
      */
-    public static function make(?string $view = null, ?stdClass $model = null, bool $useDefaultViewPath = true): self {
+    public static function make(?string $view = null, ?object $model = null, bool $useDefaultViewPath = true): self {
         // if ($view === null) {
         //     $view = InsightsUtil::getCallingMethodName();
         // }
