@@ -152,7 +152,7 @@ final class WebApplicationBuilder {
         ];
 
         // Configure MVC directory paths.
-        MvcDirMap::initialize(__DIR__ . '/../../../src/' . $options['WebUIDirectory']);
+        MvcDirMap::initialize($options['WebUIDirectory']);
         // TODO: Add logic for overriding the remaining dir paths.
 
         // Configure router for MVC.

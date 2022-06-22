@@ -16,7 +16,7 @@ try {
     $builder = new WebApplicationBuilder();
 
     // Add services...
-    $builder->addControllersWithViews();
+    $builder->addControllersWithViews(['WebUIDirectory' => __DIR__ . '/../src/WebUI/']);
 
     // Build Web Application...
     $app = $builder->build();
