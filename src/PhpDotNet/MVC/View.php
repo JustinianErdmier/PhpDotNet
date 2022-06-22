@@ -24,8 +24,6 @@ final class View {
      * @param string      $view                Path to the view to render.
      * @param object|null $model               The view model for building the view.
      * @param bool        $useDefaultViewPath  Configures whether to locate the view from the default view path.
-     *
-     * @noinspection PhpPropertyOnlyWrittenInspection
      */
     public function __construct(private readonly string $view, private readonly ?object $model = null, private readonly bool $useDefaultViewPath = true) {}
 
@@ -128,6 +126,8 @@ final class View {
         if (!file_exists($viewPath)) {
             throw new ViewNotFoundException();
         }
+
+        $model = $this->model;
 
         ob_start();
 

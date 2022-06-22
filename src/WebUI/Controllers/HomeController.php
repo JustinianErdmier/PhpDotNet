@@ -13,6 +13,7 @@ use PhpDotNet\Builder\WebApplication;
 use PhpDotNet\Http\Attributes\HttpGet;
 use PhpDotNet\MVC\ControllerBase;
 use PhpDotNet\MVC\View;
+use WebUI\Models\ManageModel;
 
 class HomeController extends ControllerBase {
 
@@ -20,11 +21,12 @@ class HomeController extends ControllerBase {
     public function index(): View {
         return View::make(view:'Home/Index');
     }
-    
+
     #[HttpGet('/Manage/{name}')]
     public function manage(string $name): View {
         WebApplication::$app->logger->info('Home/Manage/Manage route parameter: $name => {name}', ['name' => $name]);
-        return View::make('Home/Manage/Manage');
+        $model = new ManageModel($name);
+        return View::make('Home/Manage/Manage', $model);
     }
 
     #[HttpGet('/NotFound')]

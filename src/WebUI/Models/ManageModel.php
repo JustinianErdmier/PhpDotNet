@@ -7,11 +7,8 @@
 
 declare(strict_types = 1);
 
-use WebUI\Models\ManageModel;
+namespace WebUI\Models;
 
-/** @var ManageModel $model */
-
-?>
-
-<h1>Home Manage</h1>
-<h3><?=$model->name?></h3>
+class ManageModel {
+    public function __construct(public readonly string $name) {}
+}
