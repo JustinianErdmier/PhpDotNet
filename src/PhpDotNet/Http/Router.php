@@ -136,7 +136,7 @@ final class Router {
     public static function enableCache(string $routeCache): void {
         $routeCache = realpath($routeCache);
 
-        if ($routeCache === false || !is_file($routeCache)) {
+        if ($routeCache === false || !is_dir($routeCache)) {
             throw new DirectoryNotFoundException('Could not find the directory to save the route cache file.');
         }
 
