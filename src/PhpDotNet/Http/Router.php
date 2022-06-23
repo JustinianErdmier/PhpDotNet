@@ -24,6 +24,7 @@ use ReflectionException;
 use RuntimeException;
 use WebUI\Controllers\HomeController;
 use function FastRoute\cachedDispatcher;
+use function FastRoute\simpleDispatcher;
 
 final class Router {
     /**
@@ -49,6 +50,10 @@ final class Router {
      * @var ContainerInterface $container The {@see WebApplication}'s configured services.
      */
     private static ContainerInterface $container;
+
+    private static bool $cacheRoutes = false;
+
+    private static string $routeCache;
 
     /**
      * Manually sets {@see Router::$routeMap}.
@@ -120,6 +125,26 @@ final class Router {
     }
 
     /**
+     * Enables caching of routes and sets the location for the cache file.
+     *
+     * @param string $routeCache  Location where to save the cache file.
+     *
+     * @return void
+     * @return void
+     * @throws DirectoryNotFoundException
+     */
+    public static function enableCache(string $routeCache): void {
+        $routeCache = realpath($routeCache);
+
+        if ($routeCache === false || !is_file($routeCache)) {
+            throw new DirectoryNotFoundException('Could not find the directory to save the route cache file.');
+        }
+
+        self::$routeCache  = $routeCache;
+        self::$cacheRoutes = true;
+    }
+
+    /**
      * Attempts to resolve the request and return its contents.
      *
      * @return mixed
@@ -132,16 +157,29 @@ final class Router {
         }
 
         // Build dispatcher.
-        $dispatcher = cachedDispatcher(function(RouteCollector $collector) {
-            $registeredMethods = array_keys(self::$routeMap);
+        if (self::$cacheRoutes) {
+            $dispatcher = cachedDispatcher(function(RouteCollector $collector) {
+                $registeredMethods = array_keys(self::$routeMap);
 
-            foreach ($registeredMethods as $method) {
-                $registeredRoutes = array_keys(self::$routeMap[$method]);
-                foreach ($registeredRoutes as $route) {
-                    $collector->addRoute($method, $route, self::$routeMap[$method][$route]);
+                foreach ($registeredMethods as $method) {
+                    $registeredRoutes = array_keys(self::$routeMap[$method]);
+                    foreach ($registeredRoutes as $route) {
+                        $collector->addRoute($method, $route, self::$routeMap[$method][$route]);
+                    }
                 }
-            }
-        }, ['cacheFile' => __DIR__ . '/../../../runtime/route.cache']);
+            }, ['cacheFile' => self::$routeCache]);
+        } else {
+            $dispatcher = simpleDispatcher(function(RouteCollector $collector) {
+                $registeredMethods = array_keys(self::$routeMap);
+
+                foreach ($registeredMethods as $method) {
+                    $registeredRoutes = array_keys(self::$routeMap[$method]);
+                    foreach ($registeredRoutes as $route) {
+                        $collector->addRoute($method, $route, self::$routeMap[$method][$route]);
+                    }
+                }
+            });
+        }
 
         // Dispatch request.
         $method    = Request::getMethod();

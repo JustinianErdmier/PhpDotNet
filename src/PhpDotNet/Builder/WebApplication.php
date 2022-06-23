@@ -9,6 +9,7 @@ declare(strict_types = 1);
 
 namespace PhpDotNet\Builder;
 
+use PhpDotNet\Exceptions\Common\DirectoryNotFoundException;
 use PhpDotNet\Exceptions\Http\RoutesNotConfigured;
 use PhpDotNet\HTTP\Router;
 use Psr\Container\ContainerInterface;
@@ -56,6 +57,16 @@ final class WebApplication {
 
     public function mapControllerRoute(string $controller, string $action): void {
         throw new RuntimeException('Not yet implemented.');
+    }
+
+    /**
+     * Enables caching of routes - ideal for production.
+     *
+     * @throws DirectoryNotFoundException If the router cannot find the location using the path provided.
+     * @see Router::enableCache()
+     */
+    public function useCachedRoutes(string $cacheDir): void {
+        Router::enableCache($cacheDir);
     }
 
     /**
