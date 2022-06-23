@@ -21,8 +21,10 @@ try {
     // Build Web Application...
     $app = $builder->build();
 
+    $app->useCachedRoutes(__DIR__ . '/../runtime/');
+
     $app->run();
 } catch (Exception $exception) {
-    // TODO: Log error.
+    echo $exception->getMessage();
     die;
 }

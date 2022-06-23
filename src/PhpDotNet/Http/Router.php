@@ -140,7 +140,7 @@ final class Router {
             throw new DirectoryNotFoundException('Could not find the directory to save the route cache file.');
         }
 
-        self::$routeCache  = $routeCache;
+        self::$routeCache  = $routeCache . '/route.cache';
         self::$cacheRoutes = true;
     }
 
@@ -158,6 +158,7 @@ final class Router {
 
         // Build dispatcher.
         if (self::$cacheRoutes) {
+            WebApplication::$app->logger->info(self::$routeCache);
             $dispatcher = cachedDispatcher(function(RouteCollector $collector) {
                 $registeredMethods = array_keys(self::$routeMap);
 
