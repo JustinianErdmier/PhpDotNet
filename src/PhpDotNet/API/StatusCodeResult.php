@@ -18,11 +18,10 @@ class StatusCodeResult extends ActionResult {
     /**
      * Initializes a new {@see StatusCodeResult} with the given {@see StatusCodeResult::$statusCode}.
      *
-     * @param int         $statusCode  The HTTP status code of the response.
-     * @param object|null $result      {@see ActionResult::$result}
+     * @param int $statusCode  The HTTP status code of the response.
      */
-    public function __construct(private int $statusCode, ?object $result) {
-        parent::__construct($result);
+    public function __construct(private readonly int $statusCode) {
+        parent::__construct(null);
     }
 
     /**
