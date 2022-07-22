@@ -95,7 +95,7 @@ final class View {
     }
 
     /**
-     * Builds the {@see View} and returns it as a string to be echoed.
+     * Builds the {@see View} with the layout and returns it as a string.
      *
      * @return string
      * @throws ViewNotFoundException
@@ -142,6 +142,37 @@ final class View {
         $view = (string)ob_get_clean();
 
         return str_replace('{{RenderContent}}', $view, $layout);
+    }
+
+    /**
+     * Builds the {@see View} without the layout and returns it as a string.
+     *
+     * @return string
+     * @throws DirectoryNotFoundException
+     * @throws ViewNotFoundException
+     */
+    public function renderPartial(): string {
+        if (empty(self::$viewDir)) {
+            throw new DirectoryNotFoundException('Could not find views directory while attempting to render view.');
+        }
+
+        if ($this->useDefaultViewPath) {
+            $viewPath = self::$viewDir . '/' . $this->view . '.phtml';
+        } else {
+            $viewPath = $this->view;
+        }
+
+        if (!file_exists($viewPath)) {
+            throw new ViewNotFoundException();
+        }
+
+        $model = $this->model;
+
+        ob_start();
+
+        include $viewPath;
+
+        return (string)ob_get_clean();
     }
 
     // /**
