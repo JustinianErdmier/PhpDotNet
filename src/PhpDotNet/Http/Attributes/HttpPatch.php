@@ -5,15 +5,18 @@
  * Licensed under the MIT License - See LICENSE in repository root.           *
  ******************************************************************************/
 
+/** @noinspection PhpMultipleClassDeclarationsInspection */
+
 declare(strict_types = 1);
 
-namespace PhpDotNet\Http;
+namespace PhpDotNet\Http\Attributes;
 
-enum HttpMethod:string {
-    case Get = 'get';
-    case Post = 'post';
-    case Put = 'put';
-    case Delete = 'delete';
-    case Head = 'head';
-    case Patch = 'patch';
+use Attribute;
+use PhpDotNet\Http\HttpMethod;
+
+#[Attribute(Attribute::TARGET_METHOD | Attribute::IS_REPEATABLE)]
+class HttpPatch extends HttpRoute {
+    public function __construct(string $route) {
+        parent::__construct($route, HttpMethod::Patch);
+    }
 }
