@@ -23,6 +23,13 @@ abstract class ControllerBase {
     }
 
     /**
+     * {@see View::make()}
+     */
+    public function view(?string $view, ?object $model = null): View {
+        return View::make($view, $model);
+    }
+
+    /**
      * Provides a very rudimentary way of binding the data in {@see ControllerBase::$body} to a provided model.
      *
      * At this time, the desired model to be hydrated must meet the following criteria:
