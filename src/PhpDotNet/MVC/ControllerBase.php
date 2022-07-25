@@ -63,7 +63,8 @@ abstract class ControllerBase {
                     continue;
                 }
 
-                $type = $property->getType();
+                $type      = $property->getType();
+                $valueType = gettype($value);
 
                 if (!$type->isBuiltin()) {
                     $this->modelBindingErrors['FatalErrors'][] = "Property {$property->getName()} in class {$reflectionModel->getName()} must be a built-in type.";
@@ -71,7 +72,15 @@ abstract class ControllerBase {
                     break;
                 }
 
-                if ($type->getName() !== gettype($value)) {
+                if ($type->getName() !== $valueType) {
+                    if ($type->getName() === 'bool') {
+                        if ($value === 'true' || $value === 1) {
+                            $property->setValue($model, true);
+                        } elseif ($value === 'false' || $value === 0) {
+                            $property->setValue($model, false);
+                        }
+                    }
+
                     if ($type->allowsNull()) {
                         $property->setValue($model, null);
 
